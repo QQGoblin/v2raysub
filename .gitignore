@@ -1,3 +1,2 @@
-/.idea/*
-/pkg/contants/private.go
-/pkg/contants/public.go
+private.go
+.idea/*
