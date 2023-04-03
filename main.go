@@ -33,5 +33,5 @@ func Subscribe(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/sub", Subscribe)
-	http.ListenAndServe("0.0.0.0:8000", nil)
+	http.ListenAndServe("0.0.0.0:80", nil)
 }
