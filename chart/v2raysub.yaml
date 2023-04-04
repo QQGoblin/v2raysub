@@ -13,7 +13,28 @@ spec:
     spec:
       containers:
         - name: v2ray
-          image: docker.io/library/v2raysub:v0.0.1
+          image: docker.io/library/alpine:3.17.3
+          command:
+            - /v2raysub
+          env:
+            - name: ALI_ECS_REGION
+              value: ""
+            - name: ALI_ECS_KEY
+              value: ""
+            - name: ALI_ECS_SECRET
+              value: ""
+            - name: VMESS_CLIENT_ID
+              value: ""
+            - name: VMESS_PORT
+              value: ""
+          volumeMounts:
+            - mountPath: /v2raysub
+              name: v2raysub
+      volumes:
+        - name: v2raysub
+          hostPath:
+            path: /usr/local/bin/v2raysub
+            type: File
 ---
 apiVersion: v1
 kind: Service

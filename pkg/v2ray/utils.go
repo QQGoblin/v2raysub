@@ -14,8 +14,8 @@ const (
 	VMessVersion2 VMessVesion = "2"
 )
 const (
-	DefaultVmessName = "Vmess"
-	DefaultSockName  = "Sock"
+	DefaultVMessName = "VMess"
+	DefaultSockName  = "Socks"
 )
 
 type vmess struct {
@@ -39,11 +39,11 @@ func defaultVMess(address string) string {
 
 	defaultVMESS := vmess{
 		Version: VMessVersion2,
-		Name:    DefaultVmessName,
+		Name:    DefaultVMessName,
 		Address: address,
 		Port:    contants.DefaultVMessPort,
-		ID:      contants.DefaultID,
-		AlterId: contants.DefaultAlterId,
+		ID:      contants.DefaultVMessID,
+		AlterId: contants.DefaultAlterID,
 		SCY:     "auto",
 		Network: "ws",
 		Type:    "none",
@@ -63,10 +63,27 @@ func defaultSock(address string) string {
 	return fmt.Sprintf("socks://%s@%s:%s#%s", secret, address, contants.DefaultSockPort, DefaultSockName)
 }
 
-func Subscribe(address string) string {
-	all := []string{
-		defaultSock(address),
-		defaultVMess(address),
+type ProxyType string
+
+const (
+	ProxyTypeVMess ProxyType = "VMess"
+	ProxyTypeSocks ProxyType = "Socks"
+	ProxyTypeSS    ProxyType = "Shadowsocks"
+	ProxyTypeAll   ProxyType = "All"
+)
+
+var subscribeMapFunc = map[ProxyType]func(string) string{
+	ProxyTypeVMess: defaultVMess,
+	ProxyTypeSocks: defaultSock,
+}
+
+func Subscribe(address string, proxyType ProxyType) string {
+	all := make([]string, 0)
+
+	for k, v := range subscribeMapFunc {
+		if proxyType == ProxyTypeAll || k == proxyType {
+			all = append(all, v(address))
+		}
 	}
 
 	allURLs := strings.Join(all, "\n")

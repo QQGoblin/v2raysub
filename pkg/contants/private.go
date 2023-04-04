@@ -1,18 +1,29 @@
 package contants
 
-// TODO: 以下是敏感信息，不要上传仓库
+import "os"
 
-const (
-	DefaultID        = ""
-	DefaultAlterId   = ""
+var (
+	DefaultVMessID   = ""
+	DefaultAlterID   = "0"
 	DefaultVMessPort = ""
 
 	DefaultSockPort = ""
 	DefaultSockUser = ""
 	DefaultSockPass = ""
 
-	Region   = "cn-hongkong"
+	Region   = ""
 	Key      = ""
 	Secret   = ""
 	Endpoint = "ecs.cn-hangzhou.aliyuncs.com"
 )
+
+func init() {
+
+	Region = os.Getenv("ALI_ECS_REGION")
+	Key = os.Getenv("ALI_ECS_KEY")
+	Secret = os.Getenv("ALI_ECS_SECRET")
+
+	DefaultVMessID = os.Getenv("VMESS_CLIENT_ID")
+	DefaultVMessPort = os.Getenv("VMESS_PORT")
+
+}

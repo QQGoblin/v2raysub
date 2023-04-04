@@ -1,0 +1,64 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "tag": "vemss",
+      "protocol": "vmess",
+      "port": "0",
+      "listen": "0.0.0.0",
+      "settings": {
+        "udp": false,
+        "allowTransparent": false,
+        "clients": [
+          {
+            "id": "abc",
+            "alterId": 16,
+            "level": 0,
+            "email": "adfad@tt.t"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "wsSettings": {
+          "path": "/adfadfadsfasd"
+        },
+        "tlsSettings": {
+          "allowInsecure": false,
+          "show": false,
+          "certificates": [
+            {
+              "certificateFile": "/root/v2ray-linux/private_tls.crt",
+              "keyFile": "/root/v2ray-linux/private_tls.key"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom"
+    }
+  ],
+  "policy": {
+    "levels": {
+      "0": {
+        "handshake": 10,
+        "connIdle": 300,
+        "uplinkOnly": 2,
+        "downlinkOnly": 5,
+        "statsUserUplink": false,
+        "statsUserDownlink": false,
+        "bufferSize": 0
+      }
+    },
+    "system": {
+      "statsInboundUplink": false,
+      "statsInboundDownlink": false
+    }
+  }
+}
