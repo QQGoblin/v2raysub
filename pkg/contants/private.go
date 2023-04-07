@@ -7,9 +7,13 @@ var (
 	DefaultAlterID   = "0"
 	DefaultVMessPort = ""
 
-	DefaultSockPort = ""
-	DefaultSockUser = ""
-	DefaultSockPass = ""
+	DefaultSocksPort = ""
+	DefaultSocksUser = ""
+	DefaultSocksPass = ""
+
+	DefaultShadowsocksPort     = ""
+	DefaultShadowsocksPassword = ""
+	DefaultShadowsocksMethod   = ""
 
 	Region   = ""
 	Key      = ""
@@ -25,5 +29,9 @@ func init() {
 
 	DefaultVMessID = os.Getenv("VMESS_CLIENT_ID")
 	DefaultVMessPort = os.Getenv("VMESS_PORT")
+
+	DefaultShadowsocksPassword = os.Getenv("SHADOWSOCKS_PASSWORD")
+	DefaultShadowsocksPort = os.Getenv("SHADOWSOCKS_PORT")
+	DefaultShadowsocksMethod = os.Getenv("SHADOWSOCKS_METHOD")
 
 }

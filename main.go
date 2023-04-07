@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func subscribe(w http.ResponseWriter, r *http.Request, proxyType v2ray.ProxyType) {
+func subscribe(w http.ResponseWriter, r *http.Request) {
 
 	ecss, err := aliyun.ListInstances(contants.Region, contants.Key, contants.Secret, contants.Endpoint)
 	if err != nil {
@@ -17,11 +17,16 @@ func subscribe(w http.ResponseWriter, r *http.Request, proxyType v2ray.ProxyType
 		return
 	}
 
+	proxyType := r.URL.Query().Get("type")
+	if proxyType == "" {
+		proxyType = v2ray.ProxyVMess
+	}
+	alterid := r.URL.Query().Get("alterid")
 	for _, ecs := range ecss {
 		if ecs.Status != "Running" {
 			continue
 		}
-		urls := v2ray.Subscribe(ecs.PublicIpAddress[0], proxyType)
+		urls := v2ray.Subscribe(proxyType, ecs.PublicIpAddress[0], alterid)
 		if _, err := io.Copy(w, bytes.NewReader([]byte(urls))); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -32,8 +37,6 @@ func subscribe(w http.ResponseWriter, r *http.Request, proxyType v2ray.ProxyType
 }
 
 func main() {
-	http.HandleFunc("/sub", func(writer http.ResponseWriter, request *http.Request) {
-		subscribe(writer, request, v2ray.ProxyTypeVMess)
-	})
+	http.HandleFunc("/sub", subscribe)
 	http.ListenAndServe("0.0.0.0:80", nil)
 }

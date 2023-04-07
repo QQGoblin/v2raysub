@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/QQGoblin/v2raysub/pkg/contants"
-	"strings"
 )
 
 type VMessVesion string
@@ -14,8 +13,9 @@ const (
 	VMessVersion2 VMessVesion = "2"
 )
 const (
-	DefaultVMessName = "VMess"
-	DefaultSockName  = "Socks"
+	SocksProxyName       string = "socks"
+	ShadowsocksProxyName string = "shadowsocks"
+	VMessProxyName       string = "vmess"
 )
 
 type vmess struct {
@@ -35,15 +35,15 @@ type vmess struct {
 	Alpn    string      `json:"alpn"`
 }
 
-func defaultVMess(address string) string {
+func defaultVMess(address string, alterID string) string {
 
 	defaultVMESS := vmess{
 		Version: VMessVersion2,
-		Name:    DefaultVMessName,
+		Name:    VMessProxyName,
 		Address: address,
 		Port:    contants.DefaultVMessPort,
 		ID:      contants.DefaultVMessID,
-		AlterId: contants.DefaultAlterID,
+		AlterId: alterID,
 		SCY:     "auto",
 		Network: "ws",
 		Type:    "none",
@@ -58,35 +58,35 @@ func defaultVMess(address string) string {
 	return fmt.Sprintf("vmess://%s", bs64)
 }
 
-func defaultSock(address string) string {
-	secret := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", contants.DefaultSockUser, contants.DefaultSockPass)))
-	return fmt.Sprintf("socks://%s@%s:%s#%s", secret, address, contants.DefaultSockPort, DefaultSockName)
+func defaultSocks(address string, alterID string) string {
+	secret := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", contants.DefaultSocksUser, contants.DefaultSocksPass)))
+	return fmt.Sprintf("socks://%s@%s:%s#%s", secret, address, contants.DefaultSocksPort, SocksProxyName)
 }
 
-type ProxyType string
+func defaultShadowsocks(address string, alterID string) string {
+
+	methodAndPassword := fmt.Sprintf("%s:%s", contants.DefaultShadowsocksMethod, contants.DefaultShadowsocksPassword)
+	bs64 := base64.StdEncoding.EncodeToString([]byte(methodAndPassword))
+	return fmt.Sprintf("ss://%s@%s:%s#%s", bs64, address, contants.DefaultShadowsocksPort, ShadowsocksProxyName)
+}
 
 const (
-	ProxyTypeVMess ProxyType = "VMess"
-	ProxyTypeSocks ProxyType = "Socks"
-	ProxyTypeSS    ProxyType = "Shadowsocks"
-	ProxyTypeAll   ProxyType = "All"
+	ProxyVMess       string = "vmess"
+	ProxySocks       string = "socks"
+	ProxyShadowsocks string = "shadowsocks"
+	ProxyAll         string = "all"
 )
 
-var subscribeMapFunc = map[ProxyType]func(string) string{
-	ProxyTypeVMess: defaultVMess,
-	ProxyTypeSocks: defaultSock,
+var subscribeMapFunc = map[string]func(string, string) string{
+	ProxyVMess:       defaultVMess,
+	ProxySocks:       defaultSocks,
+	ProxyShadowsocks: defaultShadowsocks,
 }
 
-func Subscribe(address string, proxyType ProxyType) string {
-	all := make([]string, 0)
+func Subscribe(proxyType string, address string, alterId string) string {
 
-	for k, v := range subscribeMapFunc {
-		if proxyType == ProxyTypeAll || k == proxyType {
-			all = append(all, v(address))
-		}
-	}
-
-	allURLs := strings.Join(all, "\n")
-	return base64.StdEncoding.EncodeToString([]byte(allURLs))
+	urlFunc := subscribeMapFunc[proxyType]
+	subURL := urlFunc(address, alterId)
+	return subURL
 
 }
