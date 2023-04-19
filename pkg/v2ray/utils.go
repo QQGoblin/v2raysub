@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/QQGoblin/v2raysub/pkg/contants"
+	"github.com/QQGoblin/v2raysub/pkg/config"
 )
 
 type VMessVesion string
@@ -41,8 +41,8 @@ func defaultVMess(address string, alterID string) string {
 		Version: VMessVersion2,
 		Name:    VMessProxyName,
 		Address: address,
-		Port:    contants.DefaultVMessPort,
-		ID:      contants.DefaultVMessID,
+		Port:    config.DefaultVMessPort,
+		ID:      config.DefaultVMessID,
 		AlterId: alterID,
 		SCY:     "auto",
 		Network: "ws",
@@ -59,15 +59,15 @@ func defaultVMess(address string, alterID string) string {
 }
 
 func defaultSocks(address string, alterID string) string {
-	secret := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", contants.DefaultSocksUser, contants.DefaultSocksPass)))
-	return fmt.Sprintf("socks://%s@%s:%s#%s", secret, address, contants.DefaultSocksPort, SocksProxyName)
+	secret := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", config.DefaultSocksUser, config.DefaultSocksPass)))
+	return fmt.Sprintf("socks://%s@%s:%s#%s", secret, address, config.DefaultSocksPort, SocksProxyName)
 }
 
 func defaultShadowsocks(address string, alterID string) string {
 
-	methodAndPassword := fmt.Sprintf("%s:%s", contants.DefaultShadowsocksMethod, contants.DefaultShadowsocksPassword)
+	methodAndPassword := fmt.Sprintf("%s:%s", config.DefaultShadowsocksMethod, config.DefaultShadowsocksPassword)
 	bs64 := base64.StdEncoding.EncodeToString([]byte(methodAndPassword))
-	return fmt.Sprintf("ss://%s@%s:%s#%s", bs64, address, contants.DefaultShadowsocksPort, ShadowsocksProxyName)
+	return fmt.Sprintf("ss://%s@%s:%s#%s", bs64, address, config.DefaultShadowsocksPort, ShadowsocksProxyName)
 }
 
 const (

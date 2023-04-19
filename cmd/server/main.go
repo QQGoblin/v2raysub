@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"github.com/QQGoblin/v2raysub/pkg/aliyun"
-	"github.com/QQGoblin/v2raysub/pkg/contants"
+	"github.com/QQGoblin/v2raysub/pkg/config"
 	"github.com/QQGoblin/v2raysub/pkg/v2ray"
 	"io"
 	"net/http"
@@ -11,7 +11,7 @@ import (
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
 
-	ecss, err := aliyun.ListInstances(contants.Region, contants.Key, contants.Secret, contants.Endpoint)
+	ecss, err := aliyun.ListInstances(config.Region, config.Key, config.Secret, config.Endpoint)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
