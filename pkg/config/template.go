@@ -19,12 +19,18 @@ var GoblinV2RayConfig = template.Must(template.New("config.json").Parse(dedent.D
         "accounts": [
           {
             "user": "proxy",
-            "pass": "aca28241-0612-43b6-8832-469ab25ae954"
+            "pass": ""
           }
         ],
         "udp": false,
         "ip": "127.0.0.1"
       }
+    },
+    {
+      "tag": "http",
+      "port": 10778,
+      "listen": "127.0.0.1",
+      "protocol": "http"
     }
   ],
   "outbounds": [
@@ -37,7 +43,7 @@ var GoblinV2RayConfig = template.Must(template.New("config.json").Parse(dedent.D
             "address": "{{ .Address }}",
             "method": "chacha20-ietf-poly1305",
             "ota": false,
-            "password": "e181f0f5-5c74-42c1-a607-14f69e4d87e0",
+            "password": "",
             "port": 28398,
             "level": 1
           }

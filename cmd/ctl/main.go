@@ -40,7 +40,7 @@ func generateConfig(filename string, data tmpl.Data) error {
 }
 
 func address() (string, error) {
-	ecss, err := aliyun.ListInstances(aliRegion, aliSecret, aliKey, config.Endpoint)
+	ecss, err := aliyun.ListInstances(aliRegion, aliKey, aliSecret, config.Endpoint)
 	if err != nil {
 		return "", err
 	}
