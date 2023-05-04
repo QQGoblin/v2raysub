@@ -1,0 +1,26 @@
+
+v2ray:
+  path: "/v2ray/config.json"
+  tmpl: "/v2ray/config-tmpl.json"
+  subscribe:
+    - name: QQGoblinSS
+      proxy: shadowsocks
+      address: "example.cn"
+      port: "888"
+      dynamic: false
+      variables:
+        method: ""
+        password: ""
+    - name: HK
+      proxy: shadowsocks
+      address: "example.cn"
+      port: "888"
+      dynamic: true
+      variables:
+        method: ""
+        password: ""
+aliyun:
+  endpoint: "ecs.cn-hangzhou.aliyuncs.com"
+  region: "cn-hongkong"
+  key: ""
+  secret: ""

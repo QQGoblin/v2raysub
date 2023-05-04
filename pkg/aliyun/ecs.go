@@ -8,18 +8,25 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+type Config struct {
+	Endpoint string `yaml:"endpoint"`
+	Region   string `yaml:"region"`
+	Key      string `yaml:"key"`
+	Secret   string `yaml:"secret"`
+}
+
 type ECS struct {
 	Name            string   `json:"name"`
 	PublicIpAddress []string `json:"public_ip_address"`
 	Status          string   `json:"status"`
 }
 
-func ListInstances(regionID, key, secret, endpoint string) ([]*ECS, error) {
+func ListInstances(c *Config) ([]*ECS, error) {
 
 	config := &openapi.Config{
-		AccessKeyId:     &key,
-		AccessKeySecret: &secret,
-		Endpoint:        tea.String(endpoint),
+		AccessKeyId:     &c.Key,
+		AccessKeySecret: &c.Secret,
+		Endpoint:        tea.String(c.Endpoint),
 	}
 
 	client, err := ecs.NewClient(config)
@@ -27,7 +34,7 @@ func ListInstances(regionID, key, secret, endpoint string) ([]*ECS, error) {
 		return nil, err
 	}
 	r := &ecs.DescribeInstancesRequest{
-		RegionId: tea.String(regionID),
+		RegionId: tea.String(c.Region),
 	}
 
 	resp, err := client.DescribeInstancesWithOptions(r, &util.RuntimeOptions{})
@@ -52,4 +59,19 @@ func ListInstances(regionID, key, secret, endpoint string) ([]*ECS, error) {
 		})
 	}
 	return ecss, nil
+}
+
+func PublicAddress(c *Config) (string, error) {
+	ecss, err := ListInstances(c)
+	if err != nil {
+		return "", err
+	}
+
+	for _, ecs := range ecss {
+		if ecs.Status != "Running" {
+			continue
+		}
+		return ecs.PublicIpAddress[0], nil
+	}
+	return "", errors.New("not running ecs")
 }
