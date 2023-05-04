@@ -11,9 +11,10 @@ spec:
       labels:
         name: v2raysub
     spec:
+      hostNetwork: true
       containers:
         - name: v2ray
-          image: docker.io/library/alpine:3.17.3
+          image: docker.io/v2fly/v2fly-core:v5.2.1
           command:
             - /v2raysub
           volumeMounts:
@@ -40,7 +41,7 @@ spec:
     - name: tcp
       port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 18088
   selector:
     name: v2raysub
 ---
