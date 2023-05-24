@@ -19,22 +19,23 @@ type ECS struct {
 	Name            string   `json:"name"`
 	PublicIpAddress []string `json:"public_ip_address"`
 	Status          string   `json:"status"`
+	InstanceId      string   `json:"instance_id"`
 }
 
-func ListInstances(c *Config) ([]*ECS, error) {
-
+func NewClient(c *Config) (*ecs.Client, error) {
 	config := &openapi.Config{
 		AccessKeyId:     &c.Key,
 		AccessKeySecret: &c.Secret,
 		Endpoint:        tea.String(c.Endpoint),
 	}
 
-	client, err := ecs.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
+	return ecs.NewClient(config)
+}
+
+func ListInstances(client *ecs.Client, region string) ([]*ECS, error) {
+
 	r := &ecs.DescribeInstancesRequest{
-		RegionId: tea.String(c.Region),
+		RegionId: tea.String(region),
 	}
 
 	resp, err := client.DescribeInstancesWithOptions(r, &util.RuntimeOptions{})
@@ -53,6 +54,7 @@ func ListInstances(c *Config) ([]*ECS, error) {
 			pubIPs = append(pubIPs, *ip)
 		}
 		ecss = append(ecss, &ECS{
+			InstanceId:      *ins.InstanceId,
 			Name:            *ins.InstanceName,
 			PublicIpAddress: pubIPs,
 			Status:          *ins.Status,
@@ -61,17 +63,34 @@ func ListInstances(c *Config) ([]*ECS, error) {
 	return ecss, nil
 }
 
-func PublicAddress(c *Config) (string, error) {
-	ecss, err := ListInstances(c)
+func StopAllInstances(client *ecs.Client, region string) error {
+
+	ecss, err := ListInstances(client, region)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	for _, ecs := range ecss {
-		if ecs.Status != "Running" {
+	forceStop := false
+	stoppedMode := "StopCharging"
+
+	for _, ins := range ecss {
+		if ins.Status != "Running" {
 			continue
 		}
-		return ecs.PublicIpAddress[0], nil
+		r := &ecs.StopInstanceRequest{
+			ForceStop:   &forceStop,
+			InstanceId:  &ins.InstanceId,
+			StoppedMode: &stoppedMode,
+		}
+		resp, err := client.StopInstance(r)
+		if err != nil {
+			return err
+		}
+		if *resp.StatusCode != 200 {
+			return errors.New("error status code")
+		}
+
 	}
-	return "", errors.New("not running ecs")
+
+	return nil
 }

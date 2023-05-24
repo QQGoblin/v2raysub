@@ -3,49 +3,46 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"github.com/QQGoblin/go-sdk/pkg/tmpl"
 	"github.com/QQGoblin/v2raysub/pkg/aliyun"
+	"github.com/QQGoblin/v2raysub/pkg/config"
 	"github.com/QQGoblin/v2raysub/pkg/v2ray"
-	"gopkg.in/yaml.v2"
 	"io"
-	"io/ioutil"
 	"k8s.io/klog/v2"
 	"net/http"
-	"os"
 	"os/exec"
 )
 
-type SubConfig struct {
-	V2ray  *v2ray.Config  `yaml:"v2ray"`
-	Aliyun *aliyun.Config `yaml:"aliyun"`
-}
-
 var (
-	subConfig   = &SubConfig{}
+	subConfig   = &config.SubConfig{}
 	cancelV2Ray context.CancelFunc
 )
 
-func loadConfig(path string) {
+func getProxyServerAddress(c *aliyun.Config) (string, error) {
 
-	cf, err := os.Open(path)
+	client, err := aliyun.NewClient(c)
 	if err != nil {
-		klog.Fatalf("load config file from %s failed, err %v", path, err)
+		return "", err
 	}
-	defer cf.Close()
 
-	bs, err := ioutil.ReadAll(cf)
+	ecss, err := aliyun.ListInstances(client, c.Region)
 	if err != nil {
-		klog.Fatalf("read config file from %s failed, err %v", path, err)
+		return "", err
 	}
 
-	if err := yaml.Unmarshal(bs, subConfig); err != nil {
-		klog.Fatalf("unmarshal config failed, content: %v，", bs)
+	for _, ecs := range ecss {
+		if ecs.Status != "Running" {
+			continue
+		}
+		return ecs.PublicIpAddress[0], nil
 	}
+	return "", errors.New("not running ecs")
 }
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
 
-	dynamicAddress, err := aliyun.PublicAddress(subConfig.Aliyun)
+	dynamicAddress, err := getProxyServerAddress(subConfig.Aliyun)
 	if err != nil {
 		klog.Errorf("get publicAddress failed: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,7 +65,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 func refresh(w http.ResponseWriter, r *http.Request) {
 
 	klog.Info("refresh local v2ray config")
-	dynamicAddress, err := aliyun.PublicAddress(subConfig.Aliyun)
+	dynamicAddress, err := getProxyServerAddress(subConfig.Aliyun)
 	if err != nil {
 		klog.Errorf("get publicAddress failed: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -110,7 +107,8 @@ func run(ctx context.Context, bin, config string) error {
 }
 
 func main() {
-	loadConfig("/v2ray/v2raysub.yaml")
+
+	subConfig = config.LoadConfigOrDie("/v2ray/v2raysub.yaml")
 
 	var (
 		ctx context.Context
