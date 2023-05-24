@@ -47,14 +47,14 @@ func vmess(name, address, port string, variables map[string]string) string {
 		Port:    port,
 		ID:      variables["clientid"],
 		AlterId: variables["alterid"],
-		SCY:     "auto",
-		Network: "ws",
-		Type:    "none",
-		Host:    "goodx.com",
-		Path:    "/goodx",
-		TLS:     "tls",
-		SNI:     "",
-		Alpn:    "",
+		SCY:     variables["scy"],
+		Network: variables["network"],
+		Type:    variables["type"],
+		Host:    variables["host"],
+		Path:    variables["path"],
+		TLS:     variables["tls"],
+		SNI:     variables["sni"],
+		Alpn:    variables["alpn"],
 	}
 	t, _ := json.Marshal(defaultVMESS)
 	bs64 := base64.StdEncoding.EncodeToString(t)
