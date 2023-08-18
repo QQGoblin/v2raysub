@@ -15,21 +15,15 @@ spec:
       containers:
         - name: v2ray
           image: docker.io/v2fly/v2fly-core:v5.2.1
-          command:
-            - /v2raysub
+          workingDir: /v2ray-client/v2ray
+          command: ["./v2raysub"]
           volumeMounts:
-            - mountPath: /v2raysub
-              name: v2raysub
-            - mountPath: /v2ray
-              name: v2ray-server
+            - mountPath: /v2ray-client
+              name: v2ray-client
       volumes:
-        - name: v2raysub
+        - name: v2ray-client
           hostPath:
-            path: /usr/local/bin/v2raysub
-            type: File
-        - name: v2ray-server
-          hostPath:
-            path: /root/v2ray
+            path: /root/v2ray-client
             type: Directory
 ---
 apiVersion: v1
@@ -57,7 +51,7 @@ metadata:
   name: v2raysub
 spec:
   rules:
-    - host: www.example.com
+    - host: www.lqingcloud.cn
       http:
         paths:
           - backend:
@@ -67,7 +61,7 @@ spec:
                   name: tcp
             path: /v2ray/
             pathType: Prefix
-    - host: www.example.com
+    - host: lqingcloud.cn
       http:
         paths:
           - backend:
